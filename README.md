@@ -16,3 +16,34 @@ A simple but powerful To-Do desktop app built with Python + CustomTkinter — AI
 ## 🖼️ Screenshots
 
 ![todo-lite-screenshot](https://github.com/user-attachments/assets/a95f039f-9ac2-45ab-b9fa-492c7fd2bb5e)
+
+# 📝 Todo-Lite
+
+A minimal, functional to-do list app built with Python and `customtkinter`. Lightweight. No bloat. Just gets the job done.
+
+---
+
+## ⚙️ Built With
+- Python 3.x  
+- customtkinter  
+- ChatGPT (used for initial design/code suggestions)
+
+---
+
+## 🗒️ Notes
+- UI and logic were assisted by ChatGPT, but heavily customized after.  
+- Known issue: light mode flickers occasionally.  
+- May expand later or use as a base for future apps.
+
+---
+
+## 🧩 How to Run
+
+```bash
+git clone https://github.com/MubarakSec/todo-lite.git
+cd todo-lite
+python main.py
+```
+
+💬 Final Thought
+  Built in a few hours. Not perfect. But it's mine — and it works.
