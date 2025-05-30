@@ -9,6 +9,8 @@ A simple but powerful To-Do desktop app built with Python + CustomTkinter — AI
 - 📅 Date picker to schedule deadlines
 - 🔍 Real-time search
 - 🧵 Filter tasks
+- 📚 Data presistence
+- 📈 Task Prioritization
 - 🌗 Light/Dark mode toggle *(light mode still buggy)*
 
 ---
