@@ -45,5 +45,21 @@ cd todo-lite
 python main.py
 ```
 
+ Make sure python 3 and customtkinter are installed:
+ ```bash
+pip install customtkinter
+```
+
+---
+
+## 🪟 Windows Executable (optional)
+  
+
+Want to try without Python?
+
+➡️ [Download todo-lite.exe](https://github.com/MubarakSec/todo-lite/releases/latest)
+
+> ⚠️ Might trigger antivirus (false positive). Built using PyInstaller.
+
 💬 Final Thought
   Built in a few hours. Not perfect. But it's mine — and it works.
