@@ -15,5 +15,4 @@ A simple but powerful To-Do desktop app built with Python + CustomTkinter — AI
 
 ## 🖼️ Screenshots
 
-`md
 ![todo-lite-screenshot](https://github.com/user-attachments/assets/a95f039f-9ac2-45ab-b9fa-492c7fd2bb5e)
