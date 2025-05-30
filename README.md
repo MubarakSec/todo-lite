@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/4db40b23-2cc6-46fc-bbef-5c8013a3733d)# ✅ todo-lite (AI-assisted)
+# ✅ todo-lite (AI-assisted)
 
 A simple but powerful To-Do desktop app built with Python + CustomTkinter — AI-assisted but manually guided and tested.
 
