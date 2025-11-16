@@ -1,29 +1,29 @@
 class Theme:
     # Dark Theme
-    DARK_BG = "#121212"
-    DARK_CARD = "#1e1e1e"
-    DARK_HEADER = "#1a1a1e"
-    DARK_ACCENT = "#2962ff"
-    DARK_ACCENT_HOVER = "#0039cb"
-    DARK_TEXT = "#e0e0e0"
-    DARK_TEXT_SECONDARY = "#9e9e9e"
-    DARK_BORDER = "#2d2d2d"
-    DARK_HOVER = "#252525"
-    DARK_MENU = "#1e1e1e"
-    DARK_TAG_BG = "#1e3a8a"
+    DARK_BG = "#0f1117"
+    DARK_CARD = "#1b1f2d"
+    DARK_HEADER = "#161925"
+    DARK_ACCENT = "#5c6bff"
+    DARK_ACCENT_HOVER = "#4755d8"
+    DARK_TEXT = "#f4f6ff"
+    DARK_TEXT_SECONDARY = "#9faac2"
+    DARK_BORDER = "#262c3e"
+    DARK_HOVER = "#1f2534"
+    DARK_MENU = "#1b1f2d"
+    DARK_TAG_BG = "#2c3361"
     
-    # Light Theme (off-white)
-    LIGHT_BG = "#f8f9fa"  # Off-white background
-    LIGHT_CARD = "#ffffff"  # Pure white cards
-    LIGHT_HEADER = "#e9ecef"  # Light gray header
-    LIGHT_ACCENT = "#2962ff"
-    LIGHT_ACCENT_HOVER = "#0039cb"
-    LIGHT_TEXT = "#393939"  # Dark text
-    LIGHT_TEXT_SECONDARY = "#6c757d"  # Medium gray text
-    LIGHT_BORDER = "#dee2e6"  # Light border
-    LIGHT_HOVER = "#e9ecef"  # Light hover
+    # Light Theme
+    LIGHT_BG = "#f4f6fb"
+    LIGHT_CARD = "#ffffff"
+    LIGHT_HEADER = "#e3e7f3"
+    LIGHT_ACCENT = "#4d5dff"
+    LIGHT_ACCENT_HOVER = "#3a47d6"
+    LIGHT_TEXT = "#1a2132"
+    LIGHT_TEXT_SECONDARY = "#5a6275"
+    LIGHT_BORDER = "#d7ddee"
+    LIGHT_HOVER = "#eef1fb"
     LIGHT_MENU = "#ffffff"
-    LIGHT_TAG_BG = "#dbeafe"  # Light blue for tags
+    LIGHT_TAG_BG = "#dfe3ff"
     
     # Current theme (dark by default)
     BG = DARK_BG
@@ -37,6 +37,7 @@ class Theme:
     HOVER = DARK_HOVER
     MENU = DARK_MENU
     TAG_BG = DARK_TAG_BG
+    MODE = "dark"
     
     # Dimensions
     CORNER_RADIUS = 8
@@ -44,8 +45,14 @@ class Theme:
     
     @staticmethod
     def toggle_theme():
-        if Theme.BG == Theme.DARK_BG:
-            # Switch to light theme
+        new_mode = "light" if Theme.MODE == "dark" else "dark"
+        Theme.set_theme(new_mode)
+    
+    @staticmethod
+    def set_theme(mode: str):
+        normalized = mode.lower()
+        if normalized == "light":
+            Theme.MODE = "light"
             Theme.BG = Theme.LIGHT_BG
             Theme.CARD = Theme.LIGHT_CARD
             Theme.HEADER = Theme.LIGHT_HEADER
@@ -58,7 +65,7 @@ class Theme:
             Theme.MENU = Theme.LIGHT_MENU
             Theme.TAG_BG = Theme.LIGHT_TAG_BG
         else:
-            # Switch to dark theme
+            Theme.MODE = "dark"
             Theme.BG = Theme.DARK_BG
             Theme.CARD = Theme.DARK_CARD
             Theme.HEADER = Theme.DARK_HEADER

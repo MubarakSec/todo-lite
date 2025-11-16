@@ -112,6 +112,19 @@ class TaskDialog(ctk.CTkToplevel):
             command=self.open_calendar
         )
         self.cal_btn.pack(side="left", padx=(10, 0))
+        
+        self.clear_date_btn = ctk.CTkButton(
+            date_frame,
+            text="Clear",
+            width=60,
+            height=40,
+            fg_color="transparent",
+            border_width=1,
+            border_color=Theme.BORDER,
+            text_color=Theme.TEXT,
+            command=self.clear_due_date
+        )
+        self.clear_date_btn.pack(side="left", padx=(10, 0))
         row += 1
         
         # Priority field
@@ -159,6 +172,15 @@ class TaskDialog(ctk.CTkToplevel):
         self.tags_entry.grid(row=row, column=1, sticky="ew", pady=(0, 10))
         row += 1
         
+        ctk.CTkLabel(
+            content_frame,
+            text="Separate tags with commas or tap a recent tag below.",
+            font=ctk.CTkFont(size=11),
+            text_color=Theme.TEXT_SECONDARY,
+            anchor="w"
+        ).grid(row=row, column=1, sticky="w", pady=(0, 12))
+        row += 1
+        
         # Recent tags - FIXED: Using solid color instead of alpha
         if self.all_tags:
             ctk.CTkLabel(
@@ -168,9 +190,10 @@ class TaskDialog(ctk.CTkToplevel):
                 text_color=Theme.TEXT_SECONDARY,
                 anchor="w"
             ).grid(row=row, column=1, sticky="w", pady=(0, 5))
+            row += 1
             
             tags_frame = ctk.CTkFrame(content_frame, fg_color="transparent")
-            tags_frame.grid(row=row+1, column=1, sticky="w", pady=(0, 15))
+            tags_frame.grid(row=row, column=1, sticky="w", pady=(0, 15))
             
             for tag in self.all_tags[:5]:
                 btn = ctk.CTkButton(
@@ -185,10 +208,11 @@ class TaskDialog(ctk.CTkToplevel):
                     command=lambda t=tag: self.add_tag(t)
                 )
                 btn.pack(side="left", padx=(0, 8))
+            row += 1
         
         # Action buttons
         button_frame = ctk.CTkFrame(content_frame, fg_color="transparent")
-        button_frame.grid(row=row+2, column=1, sticky="e", pady=(20, 0))
+        button_frame.grid(row=row, column=1, sticky="e", pady=(20, 0))
         
         self.cancel_btn = ctk.CTkButton(
             button_frame,
@@ -218,7 +242,8 @@ class TaskDialog(ctk.CTkToplevel):
         # Populate if editing
         if task:
             self.title_entry.insert(0, task.title)
-            self.desc_entry.insert("1.0", task.description)
+            if task.description:
+                self.desc_entry.insert("1.0", task.description)
             if task.due_date:
                 self.date_var.set(task.due_date)
             self.priority_var.set(task.priority)
@@ -249,6 +274,13 @@ class TaskDialog(ctk.CTkToplevel):
         priority = self.priority_var.get()
         tags = [tag.strip() for tag in self.tags_entry.get().split(",") if tag.strip()]
         
+        if due_date:
+            try:
+                datetime.strptime(due_date, "%Y-%m-%d")
+            except ValueError:
+                tk.messagebox.showerror("Validation Error", "Due date must follow YYYY-MM-DD.")
+                return
+        
         if self.task:
             # Update existing task
             self.task.title = title
@@ -277,3 +309,6 @@ class TaskDialog(ctk.CTkToplevel):
                 self.tags_entry.insert("end", f", {tag}")
         else:
             self.tags_entry.insert("end", tag)
+
+    def clear_due_date(self):
+        self.date_var.set("")

@@ -1,14 +1,17 @@
 import customtkinter as ctk
 import tkinter as tk
+from datetime import datetime
 from utils.theme import Theme
 
 class TaskCard(ctk.CTkFrame):
     def __init__(self, parent, task, on_action):
+        border_width = 2 if task.pinned else 1
+        border_color = Theme.ACCENT if task.pinned else Theme.BORDER
         super().__init__(parent, 
                          fg_color=Theme.CARD, 
                          corner_radius=Theme.CORNER_RADIUS,
-                         border_width=1,
-                         border_color=Theme.BORDER)
+                         border_width=border_width,
+                         border_color=border_color)
         self.task = task
         self.on_action = on_action
         
@@ -36,6 +39,7 @@ class TaskCard(ctk.CTkFrame):
         content_frame = ctk.CTkFrame(self, fg_color="transparent")
         content_frame.grid(row=0, column=1, padx=(0, 16), pady=16, sticky="nsew")
         content_frame.grid_columnconfigure(0, weight=1)
+        content_frame.grid_columnconfigure(1, weight=0)
         content_frame.grid_rowconfigure(1, weight=1)
         
         # Task title with professional typography
@@ -47,6 +51,18 @@ class TaskCard(ctk.CTkFrame):
             text_color=Theme.TEXT
         )
         self.title_label.grid(row=0, column=0, sticky="ew")
+        
+        if task.pinned:
+            ctk.CTkLabel(
+                content_frame,
+                text="PINNED",
+                font=ctk.CTkFont(size=11, weight="bold"),
+                text_color=Theme.ACCENT,
+                fg_color=Theme.TAG_BG,
+                corner_radius=12,
+                padx=8,
+                pady=4
+            ).grid(row=0, column=1, padx=(12, 0), sticky="e")
         
         # Task description with subtle styling
         self.desc_label = ctk.CTkLabel(
@@ -117,6 +133,19 @@ class TaskCard(ctk.CTkFrame):
                     fg_color=Theme.HOVER
                 ).pack(side="left", padx=(0, 4))
         
+        status_text, status_color = self._get_due_status()
+        if status_text:
+            ctk.CTkLabel(
+                meta_frame,
+                text=status_text,
+                font=ctk.CTkFont(size=11, weight="bold"),
+                text_color=status_color,
+                fg_color=Theme.HOVER,
+                corner_radius=12,
+                padx=8,
+                pady=4
+            ).pack(side="left", padx=(12, 0))
+        
         # Action buttons with professional styling
         action_frame = ctk.CTkFrame(self, fg_color="transparent")
         action_frame.grid(row=0, column=2, padx=16, pady=16, sticky="ne")
@@ -183,3 +212,21 @@ class TaskCard(ctk.CTkFrame):
                 text_color=Theme.TEXT
             )
             self.desc_label.configure(text_color=Theme.TEXT_SECONDARY)
+            self.configure(border_color=Theme.ACCENT if self.task.pinned else Theme.BORDER)
+
+    def _get_due_status(self):
+        if not self.task.due_date or self.task.completed:
+            return None, None
+        try:
+            due_date = datetime.strptime(self.task.due_date, "%Y-%m-%d").date()
+        except ValueError:
+            return None, None
+        today = datetime.now().date()
+        delta = (due_date - today).days
+        if delta < 0:
+            return (f"Overdue {abs(delta)}d", "#f44336")
+        if delta == 0:
+            return ("Due today", Theme.ACCENT)
+        if delta == 1:
+            return ("Due tomorrow", Theme.ACCENT)
+        return (f"Due in {delta}d", Theme.TEXT_SECONDARY)
