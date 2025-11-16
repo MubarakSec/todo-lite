@@ -52,72 +52,78 @@ class MainView(ctk.CTkFrame):
         # Theme toggle button
         self.theme_btn = ctk.CTkButton(
             self.header_frame,
-            text="🌙" if Theme.BG == Theme.DARK_BG else "🌞",
-            width=40,
-            height=40,
-            corner_radius=20,
+            width=44,
+            height=44,
+            corner_radius=22,
+            command=self.toggle_theme,
             fg_color=Theme.CARD,
             hover_color=Theme.HOVER,
-            command=self.toggle_theme
+            text_color=Theme.TEXT,
+            border_width=1,
+            border_color=Theme.BORDER
         )
         self.theme_btn.grid(row=0, column=10, padx=(10, 20), sticky="e")
+        self._update_theme_button()
         
         # Main content area
-        content_frame = ctk.CTkFrame(self, fg_color="transparent")
-        content_frame.grid(row=1, column=0, sticky="nsew", pady=(20, 0))
-        content_frame.grid_columnconfigure(0, weight=1)
-        content_frame.grid_rowconfigure(1, weight=1)
+        self.content_frame = ctk.CTkFrame(self, fg_color=Theme.BG)
+        self.content_frame.grid(row=1, column=0, sticky="nsew", pady=(20, 0))
+        self.content_frame.grid_columnconfigure(0, weight=1)
+        self.content_frame.grid_rowconfigure(1, weight=1)
         
-        # Tab control - store as instance variable
-        self.tab_frame = ctk.CTkFrame(content_frame, fg_color="transparent", height=40)
-        self.tab_frame.grid(row=0, column=0, sticky="ew")
-        self.tab_frame.grid_columnconfigure(0, weight=1)
-        
-        self.tabview = ctk.CTkTabview(
-            self.tab_frame, 
-            height=40,
-            fg_color="transparent",
-            segmented_button_selected_color=Theme.ACCENT,
-            segmented_button_selected_hover_color=Theme.ACCENT_HOVER,
-            segmented_button_unselected_color=Theme.BG,
-            segmented_button_unselected_hover_color=Theme.HOVER
+        # Tab control - segmented button inside elevated container
+        self.tab_container = ctk.CTkFrame(
+            self.content_frame,
+            fg_color=Theme.CARD,
+            corner_radius=Theme.CORNER_RADIUS,
+            border_width=1,
+            border_color=Theme.BORDER
         )
-        self.tabview.grid(row=0, column=0, sticky="ew")
+        self.tab_container.grid(row=0, column=0, sticky="ew")
+        self.tab_container.grid_columnconfigure(0, weight=1)
         
-        self.tabs = {
-            "all": self.tabview.add("All Tasks"),
-            "active": self.tabview.add("Active"),
-            "completed": self.tabview.add("Completed"),
-            "pinned": self.tabview.add("Pinned")
-        }
+        self.tab_buttons = ctk.CTkSegmentedButton(
+            self.tab_container,
+            values=["All Tasks", "Active", "Completed", "Pinned"],
+            fg_color=Theme.CARD,
+            selected_color=Theme.ACCENT,
+            selected_hover_color=Theme.ACCENT_HOVER,
+            unselected_color=Theme.BG,
+            unselected_hover_color=Theme.HOVER,
+            text_color=Theme.TEXT,
+            command=self.on_tab_change
+        )
+        self.tab_buttons.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
+        self.tab_buttons.set("All Tasks")
         
-        # Set tab selection callback
-        self.tabview.configure(command=self._tabview_callback)
-        self.tabview.set("All Tasks")
-        
-        # Search and add task bar
-        self.action_frame = ctk.CTkFrame(content_frame, fg_color="transparent", height=50)
-        self.action_frame.grid(row=1, column=0, sticky="ew", pady=(10, 0))
-        self.action_frame.grid_columnconfigure(0, weight=1)
-        self.action_frame.grid_columnconfigure(1, weight=0)
-        self.action_frame.grid_columnconfigure(2, weight=0)
+        # Search / filter card
+        self.action_card = ctk.CTkFrame(
+            self.content_frame,
+            fg_color=Theme.CARD,
+            corner_radius=Theme.CORNER_RADIUS,
+            border_width=1,
+            border_color=Theme.BORDER
+        )
+        self.action_card.grid(row=1, column=0, sticky="ew", pady=(12, 0))
+        self.action_card.grid_columnconfigure(0, weight=1)
+        self.action_card.grid_columnconfigure(1, weight=0)
+        self.action_card.grid_columnconfigure(2, weight=0)
         
         # Search input - store as instance variable
         self.search_entry = ctk.CTkEntry(
-            self.action_frame,
+            self.action_card,
             placeholder_text="Search tasks...",
             fg_color=Theme.CARD,
             border_color=Theme.BORDER,
             corner_radius=Theme.CORNER_RADIUS,
             height=40
         )
-        self.search_entry.grid(row=0, column=0, sticky="ew")
         self.search_entry.bind("<KeyRelease>", self.on_search_change)
         
         # Sorting dropdown for better control
         self.sort_var = tk.StringVar(value="Recently Added")
         self.sort_menu = ctk.CTkOptionMenu(
-            self.action_frame,
+            self.action_card,
             values=["Recently Added", "Due Date", "Priority"],
             variable=self.sort_var,
             command=lambda choice: self.refresh_tasks(),
@@ -129,11 +135,12 @@ class MainView(ctk.CTkFrame):
             dropdown_text_color=Theme.TEXT,
             text_color=Theme.TEXT
         )
-        self.sort_menu.grid(row=0, column=1, padx=(10, 0))
+        self.search_entry.grid(row=0, column=0, sticky="ew", padx=16, pady=16)
+        self.sort_menu.grid(row=0, column=1, padx=(0, 16), pady=16)
         
         # Add button - store as instance variable
         self.add_btn = ctk.CTkButton(
-            self.action_frame,
+            self.action_card,
             text="+ Add Task",
             width=120,
             height=40,
@@ -143,12 +150,12 @@ class MainView(ctk.CTkFrame):
             font=ctk.CTkFont(size=14, weight="bold"),
             command=self.add_task
         )
-        self.add_btn.grid(row=0, column=2, padx=(10, 0))
+        self.add_btn.grid(row=0, column=2, padx=(0, 16), pady=16)
         
         # Overdue filter toggle
         self.overdue_filter_var = tk.BooleanVar(value=False)
         self.overdue_switch = ctk.CTkSwitch(
-            self.action_frame,
+            self.action_card,
             text="Show overdue only",
             variable=self.overdue_filter_var,
             command=self.refresh_tasks,
@@ -157,10 +164,10 @@ class MainView(ctk.CTkFrame):
             button_hover_color=Theme.ACCENT_HOVER,
             text_color=Theme.TEXT
         )
-        self.overdue_switch.grid(row=1, column=0, columnspan=3, sticky="w", pady=(8, 0))
+        self.overdue_switch.grid(row=1, column=0, columnspan=3, sticky="w", padx=16, pady=(0, 16))
         
         # Task list area
-        self.task_frame = ctk.CTkFrame(content_frame)
+        self.task_frame = ctk.CTkFrame(self.content_frame, fg_color=Theme.BG)
         self.task_frame.grid(row=2, column=0, sticky="nsew", pady=(15, 0))
         self.task_frame.grid_columnconfigure(0, weight=1)
         self.task_frame.grid_rowconfigure(0, weight=1)
@@ -168,13 +175,20 @@ class MainView(ctk.CTkFrame):
         # Create scrollable container for tasks
         self.scroll_frame = ctk.CTkScrollableFrame(
             self.task_frame, 
-            fg_color="transparent"
+            fg_color=Theme.BG
         )
         self.scroll_frame.grid(row=0, column=0, sticky="nsew")
         self.scroll_frame.grid_columnconfigure(0, weight=1)
         
         # Task statistics footer
-        self.stats_frame = ctk.CTkFrame(self, fg_color=Theme.HEADER, height=40, corner_radius=6)
+        self.stats_frame = ctk.CTkFrame(
+            self,
+            fg_color=Theme.CARD,
+            height=48,
+            corner_radius=Theme.CORNER_RADIUS,
+            border_width=1,
+            border_color=Theme.BORDER
+        )
         self.stats_frame.grid(row=2, column=0, sticky="ew", pady=(20, 0))
         
         stats = self.controller.get_task_statistics()
@@ -205,7 +219,7 @@ class MainView(ctk.CTkFrame):
     
     def toggle_theme(self):
         Theme.toggle_theme()
-        self.theme_btn.configure(text="🌞" if Theme.BG == Theme.DARK_BG else "🌙")
+        self._update_theme_button()
         
         # Update all UI elements
         self.configure(fg_color=Theme.BG)
@@ -214,19 +228,27 @@ class MainView(ctk.CTkFrame):
         self.header_frame.configure(fg_color=Theme.HEADER)
         self.title_label.configure(text_color=Theme.TEXT)
         self.quote_label.configure(text_color=Theme.TEXT_SECONDARY)
-        self.theme_btn.configure(hover_color=Theme.HOVER)
+        self.content_frame.configure(fg_color=Theme.BG)
         
         # Tab control
-        self.tab_frame.configure(fg_color="transparent")
-        self.tabview.configure(
-            segmented_button_selected_color=Theme.ACCENT,
-            segmented_button_selected_hover_color=Theme.ACCENT_HOVER,
-            segmented_button_unselected_color=Theme.BG,
-            segmented_button_unselected_hover_color=Theme.HOVER
+        self.tab_container.configure(
+            fg_color=Theme.CARD,
+            border_color=Theme.BORDER
+        )
+        self.tab_buttons.configure(
+            fg_color=Theme.CARD,
+            selected_color=Theme.ACCENT,
+            selected_hover_color=Theme.ACCENT_HOVER,
+            unselected_color=Theme.BG,
+            unselected_hover_color=Theme.HOVER,
+            text_color=Theme.TEXT
         )
         
-        # Search and add
-        self.action_frame.configure(fg_color="transparent")
+        # Search and add card
+        self.action_card.configure(
+            fg_color=Theme.CARD,
+            border_color=Theme.BORDER
+        )
         self.search_entry.configure(
             fg_color=Theme.CARD,
             border_color=Theme.BORDER
@@ -252,10 +274,14 @@ class MainView(ctk.CTkFrame):
         )
         
         # Task area
-        self.task_frame.configure(fg_color="transparent")
+        self.task_frame.configure(fg_color=Theme.BG)
+        self.scroll_frame.configure(fg_color=Theme.BG)
         
         # Stats footer
-        self.stats_frame.configure(fg_color=Theme.HEADER)
+        self.stats_frame.configure(
+            fg_color=Theme.CARD,
+            border_color=Theme.BORDER
+        )
         self.stats_label.configure(text_color=Theme.TEXT_SECONDARY)
         
         # Context menu
@@ -263,9 +289,15 @@ class MainView(ctk.CTkFrame):
         
         self.refresh_tasks()
     
-    def _tabview_callback(self):
-        selected_tab = self.tabview.get()
-        self.on_tab_change(selected_tab)
+    def _update_theme_button(self):
+        icon = "☾" if Theme.MODE == "dark" else "☀"
+        self.theme_btn.configure(
+            text=icon,
+            fg_color=Theme.CARD,
+            hover_color=Theme.HOVER,
+            text_color=Theme.TEXT,
+            border_color=Theme.BORDER
+        )
     
     def on_tab_change(self, selected_tab):
         self.current_tab = self.get_tab_key(selected_tab)
